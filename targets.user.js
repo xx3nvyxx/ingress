@@ -3,6 +3,7 @@
 // @match http://ingress.com/intel
 // ==/UserScript==
 
+//Stolen code used to break out of the greasemonkey/userscripts wrapper
 if ('undefined' == typeof __PAGE_SCOPE_RUN__) {
   (function page_scope_runner() {
     // If we're _not_ already running in the page, grab the full source
@@ -29,7 +30,8 @@ if ('undefined' == typeof __PAGE_SCOPE_RUN__) {
   // an anonymous wrapper.
   return;
 }
-
+// For some reason I couldn't include CryptoJS via the same method datatables is included and have it work.
+// I just copied all the code below to work around that issue.
 //BEGIN CryptoJS
 /*
 CryptoJS v3.0.2
@@ -49,7 +51,8 @@ m(c,d,g,i,b[f+(3*a+5)%16],4,h[a]),i=m(i,c,d,g,b[f+(3*a+8)%16],11,h[a+1]),g=m(g,i
 24)&16711935|(a<<24|a>>>8)&4278255360;b.sigBytes=4*(f.length+1);this._process();b=this._hash.words;for(f=0;4>f;f++)a=b[f],b[f]=(a<<8|a>>>24)&16711935|(a<<24|a>>>8)&4278255360}});j.MD5=k._createHelper(p);j.HmacMD5=k._createHmacHelper(p)})(Math);
 //END CryptoJS
 
-//14201404787536b5f24a9867d7e981fb
+//14201404787536b5f24a9867d7e981fb is the MD5 of the current version of function S.
+//Since I just want to add a single line to the function, I have to ensure nothing has changed from the version I know.
 if (CryptoJS.MD5(String(S.prototype.constructor)) != "14201404787536b5f24a9867d7e981fb")
 {
   alert("NianticOps changed something, please get a new version");
@@ -59,6 +62,7 @@ if (CryptoJS.MD5(String(S.prototype.constructor)) != "14201404787536b5f24a9867d7
 var portals = {}
 var fields = []
 
+//collect all relevant portal info into a global variable for use when creating the table.
 function CollectPortalInfo(a)
 {
   if(("result" in a) && (a.result != 0) && ("map" in a.result))
@@ -165,6 +169,7 @@ function CollectPortalInfo(a)
     }
   }
 }
+//This *SHOULD* work, but it doesn't. I think it has something to do with the greasemonkey/userscript wrapper.
 /*
 window.S = new Function (
   "a", "b", "c", "d", "e",
@@ -174,6 +179,9 @@ window.S = new Function (
     .replace(/}[^}]*$/i, "")  // remove last curly bracket and everything after
 );
 */
+
+//Since I can't just insert the line I want, I have to overwrite the entire function with the last known function + the included line.
+//This is why I break out if the function changes from my known version.
 window.S = function (a, b, c, d, e) {
   c.method = b;
   var f = t(a.Fc, a, b, e), g = t(a.cd, a, b, d), h = t(a.jd, a);
@@ -191,10 +199,12 @@ window.S = function (a, b, c, d, e) {
   Mc(a, b).push(c)
 }
 
+//include datatables
 var script = document.createElement('script')
 script.src = "http://datatables.net/download/build/jquery.dataTables.min.js"
 document.getElementsByTagName('head')[0].appendChild(script);
 
+//Add a div below the footer. Completely hidden from view without scrolling down.
 $("#footer").after(' \
 <div style="width: 100%; height: 100%; margin-top: 70px; min-width: 700px;" id="target"> \
   <table style="border: 2px solid #59FBEA; display:inline-block;"> \
@@ -220,7 +230,7 @@ $("#footer").after(' \
 ')
 $("#refresh").click(makeTable)
 
-
+//Populate the table with data.
 function makeTable()
 {
   var levels = []
