@@ -61,105 +61,102 @@ var fields = []
 
 function CollectPortalInfo(a)
 {
-  if (a !== '{"error": "user is not authenticated or is not a player"}')
+  if(("result" in a) && (a.result != 0) && ("map" in a.result))
   {
-    if(("result" in a) && ("map" in a.result))
+    for (var idThing in a.result.map)
     {
-      for (var idThing in a.result.map)
+      var idThing = a.result.map[idThing]
+      if ("gameEntities" in idThing)
       {
-        var idThing = a.result.map[idThing]
-        if ("gameEntities" in idThing)
+        for (var entity in idThing.gameEntities)
         {
-          for (var entity in idThing.gameEntities)
+          var entity = idThing.gameEntities[entity];
+          var guid = entity[0]
+          var properties = entity[2]
+          if ("portalV2" in properties)
           {
-            var entity = idThing.gameEntities[entity];
-            var guid = entity[0]
-            var properties = entity[2]
-            if ("portalV2" in properties)
+            if (typeof portals[guid] == 'undefined')
             {
-              if (typeof portals[guid] == 'undefined')
+              portals[guid] = {"fields": 0, "MU": 0}
+            }
+            else
+            {
+              portals[guid] = {"fields": portals[guid].fields, "MU": portals[guid].MU}
+            }
+            portals[guid].faction = properties.controllingTeam.team
+            portals[guid].title = properties.portalV2.descriptiveText.TITLE
+            portals[guid].address = properties.portalV2.descriptiveText.ADDRESS
+            portals[guid].latE6 = properties.locationE6.latE6
+            portals[guid].lngE6 = properties.locationE6.lngE6
+            portals[guid].intelLink = "<a href='http://www.ingress.com/intel?latE6=" + String(portals[guid].latE6) +
+                                      "&lngE6=" + String(portals[guid].lngE6) + "&z=19'>Link</a>"
+            portals[guid].coords = String(portals[guid].latE6 / 1E6) + ", " + String(portals[guid].lngE6 / 1E6)
+            portals[guid].level = 0
+            portals[guid].resonators = ""
+            portals[guid].numResonators = 0
+            for (var i in properties.resonatorArray.resonators)
+            {
+              if (properties.resonatorArray.resonators[i] != null)
               {
-                portals[guid] = {"fields": 0, "MU": 0}
+                var level = properties.resonatorArray.resonators[i].level
+                portals[guid].level += level / 8
+                portals[guid].resonators += String(level)
+                portals[guid].numResonators++
               }
-              else
+            }
+            portals[guid].sortedResonators = Number(portals[guid].resonators.split('').sort().reverse().join(''))
+            portals[guid].mitigation = 0
+            portals[guid].mods = ""
+            for (var i in properties.portalV2.linkedModArray)
+            {
+              if (properties.portalV2.linkedModArray[i] != null)
               {
-                portals[guid] = {"fields": portals[guid].fields, "MU": portals[guid].MU}
+                var mod = properties.portalV2.linkedModArray[i].stats.MITIGATION
+                portals[guid].mitigation += Number(mod)
+                portals[guid].mods += "(" + mod + ")"
               }
-              portals[guid].faction = properties.controllingTeam.team
-              portals[guid].title = properties.portalV2.descriptiveText.TITLE
-              portals[guid].address = properties.portalV2.descriptiveText.ADDRESS
-              portals[guid].latE6 = properties.locationE6.latE6
-              portals[guid].lngE6 = properties.locationE6.lngE6
-              portals[guid].intelLink = "<a href='http://www.ingress.com/intel?latE6=" + String(portals[guid].latE6) +
-                                        "&lngE6=" + String(portals[guid].lngE6) + "&z=19'>Link</a>"
-              portals[guid].coords = String(portals[guid].latE6 / 1E6) + ", " + String(portals[guid].lngE6 / 1E6)
-              portals[guid].level = 0
-              portals[guid].resonators = ""
-              portals[guid].numResonators = 0
-              for (var i in properties.resonatorArray.resonators)
+            }
+            portals[guid].links = 0
+            if ("linkedEdges" in properties.portalV2)
+            {
+              for (var i in properties.portalV2.linkedEdges)
               {
-                if (properties.resonatorArray.resonators[i] != null)
+                if (properties.portalV2.linkedEdges[i] != null)
                 {
-                  var level = properties.resonatorArray.resonators[i].level
-                  portals[guid].level += level / 8
-                  portals[guid].resonators += String(level)
-                  portals[guid].numResonators++
+                    portals[guid].links++
                 }
               }
-              portals[guid].sortedResonators = Number(portals[guid].resonators.split('').sort().reverse().join(''))
-              portals[guid].mitigation = 0
-              portals[guid].mods = ""
-              for (var i in properties.portalV2.linkedModArray)
+            }
+          }
+          else
+          {
+            if ("capturedRegion" in properties)
+            {
+              if ($.inArray(guid, fields) == -1)
               {
-                if (properties.portalV2.linkedModArray[i] != null)
+                fields.push(guid)
+                for (var vertex in properties.capturedRegion)
                 {
-                  var mod = properties.portalV2.linkedModArray[i].stats.MITIGATION
-                  portals[guid].mitigation += Number(mod)
-                  portals[guid].mods += "(" + mod + ")"
-                }
-              }
-              portals[guid].links = 0
-              if ("linkedEdges" in properties.portalV2)
-              {
-                for (var i in properties.portalV2.linkedEdges)
-                {
-                  if (properties.portalV2.linkedEdges[i] != null)
+                  var guid = properties.capturedRegion[vertex].guid
+                  if (typeof portals[guid] == 'undefined')
                   {
-                      portals[guid].links++
+                    portals[guid] = {"fields": 0, "MU": 0}
                   }
+                  if (typeof portals[guid].fields == 'undefined')
+                  {
+                    portals[guid].fields = 0
+                    portals[guid].MU = 0
+                  }
+                  portals[guid].fields += 1
+                  portals[guid].MU += Number(properties.entityScore.entityScore)
                 }
               }
             }
             else
             {
-              if ("capturedRegion" in properties)
+              if ("edge" in properties)
               {
-                if ($.inArray(guid, fields) == -1)
-                {
-                  fields.push(guid)
-                  for (var vertex in properties.capturedRegion)
-                  {
-                    var guid = properties.capturedRegion[vertex].guid
-                    if (typeof portals[guid] == 'undefined')
-                    {
-                      portals[guid] = {"fields": 0, "MU": 0}
-                    }
-                    if (typeof portals[guid].fields == 'undefined')
-                    {
-                      portals[guid].fields = 0
-                      portals[guid].MU = 0
-                    }
-                    portals[guid].fields += 1
-                    portals[guid].MU += Number(properties.entityScore.entityScore)
-                  }
-                }
-              }
-              else
-              {
-                if ("edge" in properties)
-                {
-                  //using edge entities sucks for counting links
-                }
+                //using edge entities sucks for counting links
               }
             }
           }
