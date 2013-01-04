@@ -96,6 +96,8 @@ function CollectPortalInfo(a)
               portals[guid].address = properties.portalV2.descriptiveText.ADDRESS
               portals[guid].latE6 = properties.locationE6.latE6
               portals[guid].lngE6 = properties.locationE6.lngE6
+              portals[guid].distance = "…"
+              portals[guid].time = "…"
               portals[guid].intelLink = "<a href='http://www.ingress.com/intel?latE6=" + String(portals[guid].latE6) +
                                         "&lngE6=" + String(portals[guid].lngE6) + "&z=19'>Link</a>"
               portals[guid].coords = String(portals[guid].latE6 / 1E6) + ", " + String(portals[guid].lngE6 / 1E6)
@@ -205,6 +207,48 @@ function CollectPortalInfo(a)
     }
   }
 }
+
+
+function getTimeAndDistance()
+{ 
+  //TODO Batch several destinations into a single request
+  map_api_url_template = "http://maps.googleapis.com/maps/api/distancematrix/json?origins=?&destinations=?&mode=driving&language=en&sensor=false"
+  for (var guid in portals)
+  {  
+    origin = document.getElementById("origin").value
+    if (origin == "")
+    {
+      continue
+    }
+
+    coords = portals[guid].coords
+    if (coords === "undefined") {
+      continue
+    }
+
+    map_api_url = map_api_url_template.replace("origins=?", "origins=" + origin).replace("destinations=?", "destinations=" + portals[guid].coords)
+    var request = new XMLHttpRequest()
+    request.open("GET", map_api_url, false) 
+    request.send(null)
+    map_api_response = JSON.parse(request.responseText)
+
+    var dist = "ERR"
+    var time = "ERR"
+    if (map_api_response.status == "OK")
+    {
+      loc_data = map_api_response.rows[0].elements[0]
+      if (loc_data.status == "OK")
+      {
+        dist = loc_data.distance.value
+        time = loc_data.duration.value
+      }
+    }
+    portals[guid].distance = dist
+    portals[guid].time = time
+  }
+  makeTargetsTable()  
+}
+
 //This *SHOULD* work, but it doesn't. I think it has something to do with the greasemonkey/userscript wrapper.
 /*
 window.S = new Function (
@@ -262,12 +306,16 @@ $("#footer").after(' \
   </table> \
   <table style="border: 2px solid red; display:inline-block;"><tr><td><span id="refresh" style="cursor: pointer">Refresh Targets</span></td></tr></table> \
   <table style="border: 2px solid gray; display:inline-block;"><tr><td><span id="export" style="cursor: pointer">Export Player List</span></td></tr></table><br/> \
+  <table style="border: 2px solid gray; display:inline-block;"><tr><td><input type="text" id="origin" value="">Origin</input></td></tr></table> \
+  <table style="border: 2px solid gray; display:inline-block;"><tr><td><span id="get_distance" style="cursor: pointer">Get Distance</span></td></tr></table><br/> \
   <table id="targetTable"></table><br/> \
   <table id="playerTable"></table> \
 </div> \
 ')
 $("#refresh").click(makeTargetsTable)
 $("#export").click(makePlayersTable)
+$("#get_distance").click(getTimeAndDistance)
+
 
 //Populate the table with data.
 function colorRows(nRow, aData, iDisplayIndex, iDisplayIndexFull)
@@ -314,6 +362,8 @@ function makeTargetsTable()
     { "sTitle": "Title",   "mData": "title", sWidth: '230px'},
     { "sTitle": "Address",  "mData": "address", sWidth: '300px'},
     { "sTitle": "Coordinates", "mData": "coords", sWidth: '170px'},
+    { "sTitle": "Meters Away", "mData": "distance", sWidth: '170px'},
+    { "sTitle": "Seconds Away", "mData": "time", sWidth: '170px'},    
     { "sTitle": "Level",  "mData": "level", sWidth: '60px'},
     { "sTitle": "Resonators",    "mData": "res", sWidth: '70px'},
     { "sTitle": "Mods",    "mData": "mods", sWidth: '100px'},
