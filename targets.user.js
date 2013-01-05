@@ -97,7 +97,6 @@ function CollectPortalInfo(a)
               portals[guid].latE6 = properties.locationE6.latE6
               portals[guid].lngE6 = properties.locationE6.lngE6
               portals[guid].distance = "…"
-              portals[guid].time = "…"
               portals[guid].intelLink = "<a href='http://www.ingress.com/intel?latE6=" + String(portals[guid].latE6) +
                                         "&lngE6=" + String(portals[guid].lngE6) + "&z=19'>Link</a>"
               portals[guid].coords = String(portals[guid].latE6 / 1E6) + ", " + String(portals[guid].lngE6 / 1E6)
@@ -208,45 +207,50 @@ function CollectPortalInfo(a)
   }
 }
 
-
-function getTimeAndDistance()
+function getAllDirectDistance()
 { 
-  //TODO Batch several destinations into a single request
-  map_api_url_template = "http://maps.googleapis.com/maps/api/distancematrix/json?origins=?&destinations=?&mode=driving&language=en&sensor=false"
+  geocode_url_template = "http://maps.googleapis.com/maps/api/geocode/json?address=?&sensor=false"
   for (var guid in portals)
   {  
     origin = document.getElementById("origin").value
     if (origin == "")
     {
       continue
-    }
-
+    }
     coords = portals[guid].coords
     if (coords === "undefined") {
       continue
     }
 
-    map_api_url = map_api_url_template.replace("origins=?", "origins=" + origin).replace("destinations=?", "destinations=" + portals[guid].coords)
+    geocode_url = geocode_url_template.replace("address=?", "address=" + origin)
     var request = new XMLHttpRequest()
-    request.open("GET", map_api_url, false) 
+    request.open("GET", geocode_url, false) 
     request.send(null)
-    map_api_response = JSON.parse(request.responseText)
-
+    geocode_response = JSON.parse(request.responseText)
     var dist = "ERR"
-    var time = "ERR"
-    if (map_api_response.status == "OK")
+    if (geocode_response.status == "OK")
     {
-      loc_data = map_api_response.rows[0].elements[0]
-      if (loc_data.status == "OK")
-      {
-        dist = loc_data.distance.value
-        time = loc_data.duration.value
-      }
-    }
-    portals[guid].distance = dist
-    portals[guid].time = time
+        loc = geocode_response.results[0].geometry.location
+        dist = getDirectDistance(loc.lat, loc.lng,
+        	portals[guid].latE6 / 1E6, portals[guid].lngE6 / 1E6)    
+    }    portals[guid].distance = dist
   }
   makeTargetsTable()  
+}
+
+
+function getDirectDistance(lat1, lon1, lat2, lon2) {
+  var PI = 3.14159265859
+  var R = 6371 // Radius of the earth in km
+  var latDelta = (lat2-lat1) * PI / 180
+  var lonDelta = (lon2-lon1) * PI / 180
+  var lat1Rad = lat1 * PI / 180
+  var lat2Rad = lat2 * PI / 180
+
+  var a = Math.sin(latDelta/2) * Math.sin(latDelta/2) +
+          Math.sin(lonDelta/2) * Math.sin(lonDelta/2) * Math.cos(lat1Rad) * Math.cos(lat2Rad)
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+  return R * c
 }
 
 //This *SHOULD* work, but it doesn't. I think it has something to do with the greasemonkey/userscript wrapper.
@@ -314,7 +318,7 @@ $("#footer").after(' \
 ')
 $("#refresh").click(makeTargetsTable)
 $("#export").click(makePlayersTable)
-$("#get_distance").click(getTimeAndDistance)
+$("#get_distance").click(getAllDirectDistance)
 
 
 //Populate the table with data.
@@ -362,8 +366,7 @@ function makeTargetsTable()
     { "sTitle": "Title",   "mData": "title", sWidth: '230px'},
     { "sTitle": "Address",  "mData": "address", sWidth: '300px'},
     { "sTitle": "Coordinates", "mData": "coords", sWidth: '170px'},
-    { "sTitle": "Meters Away", "mData": "distance", sWidth: '170px'},
-    { "sTitle": "Seconds Away", "mData": "time", sWidth: '170px'},    
+    { "sTitle": "Direct Distance (km)", "mData": "distance", sWidth: '170px'},
     { "sTitle": "Level",  "mData": "level", sWidth: '60px'},
     { "sTitle": "Resonators",    "mData": "res", sWidth: '70px'},
     { "sTitle": "Mods",    "mData": "mods", sWidth: '100px'},
