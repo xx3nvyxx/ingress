@@ -231,8 +231,22 @@ function getAllDirectDistance()
     if (geocode_response.status == "OK")
     {
         loc = geocode_response.results[0].geometry.location
-        dist = getDirectDistance(loc.lat, loc.lng,
-        	portals[guid].latE6 / 1E6, portals[guid].lngE6 / 1E6)    
+        var orig_lat = portals[guid].latE6 / 1E6
+        var orig_lng = portals[guid].lngE6 / 1E6
+        var direction = " ";
+        if (orig_lat > loc.lat) {
+        	direction += "N"
+        } else {
+        	direction += "S"
+        }
+        if (orig_lng > loc.lng) {
+        	direction += "E"
+        } else {
+        	direction += "W"
+        }
+        dist = getDirectDistance(loc.lat, loc.lng, orig_lat, orig_lng)
+        dist = Math.round(dist*1000)/1000
+        dist += direction
     }    portals[guid].distance = dist
   }
   makeTargetsTable()  
