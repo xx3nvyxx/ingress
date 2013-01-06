@@ -129,8 +129,6 @@ function CollectPortalInfo(a)
                     if (players[resonator.ownerGuid].level < level)
                     {
                       players[resonator.ownerGuid].level = level
-                      if (level > 6 && players[resonator.ownerGuid].nickname)
-                        alert("Player leveled to L" + level + " recently: " + resonator.ownerGuid + " " + players[resonator.ownerGuid].nickname)
                     }
                     players[resonator.ownerGuid].level = players[resonator.ownerGuid].level < level ? level : players[resonator.ownerGuid].level
                     if (players[resonator.ownerGuid].nickname)
@@ -330,7 +328,7 @@ $("#footer").after(' \
       <td><input type="checkbox" name="level" value="8" checked="checked">L8</input></td> \
       <td><input type="checkbox" name="faction" value="NEUTRAL">Unclaimed</input></td> \
       <td><input type="checkbox" name="faction" value="ALIENS" checked="checked">Aliens</input></td> \
-      <td><input type="checkbox" name="faction" value="RESISTANCE">Resistance</input></td> \
+      <td><input type="checkbox" name="faction" value="RESISTANCE" checked="checked">Resistance</input></td> \
     </tr> \
   </table> \
   <table style="border: 2px solid red; display:inline-block;"><tr><td><span id="refresh" style="cursor: pointer">Refresh Targets</span></td></tr></table> \
