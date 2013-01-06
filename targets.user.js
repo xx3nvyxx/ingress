@@ -103,6 +103,7 @@ function CollectPortalInfo(a)
               portals[guid].level = 0
               portals[guid].resonators = ""
               portals[guid].numResonators = 0
+              portals[guid].avgResonatorSpacing = 0
               for (var i in properties.resonatorArray.resonators)
               {
                 var resonator = properties.resonatorArray.resonators[i]
@@ -113,6 +114,7 @@ function CollectPortalInfo(a)
                   portals[guid].resonators += String(level)
                   portals[guid].numResonators++
                   portals[guid].players += String(resonator.ownerGuid) + " "
+                  portals[guid].avgResonatorSpacing += resonator.distanceToPortal
                   if (typeof players[resonator.ownerGuid] == 'undefined')
                   {
                     players[resonator.ownerGuid] = {"nickname": "", "level": level, "faction": portals[guid].faction}
@@ -135,6 +137,10 @@ function CollectPortalInfo(a)
                 {
                   portals[guid].resonators += "0"
                 }
+              }
+              if (portals[guid].numResonators > 0) 
+              {
+                portals[guid].avgResonatorSpacing /=  portals[guid].numResonators
               }
               portals[guid].sortedResonators = Number(portals[guid].resonators.split('').sort().reverse().join(''))
               portals[guid].mitigation = 0
@@ -383,6 +389,7 @@ function makeTargetsTable()
     { "sTitle": "Direct Distance (km)", "mData": "distance", sWidth: '170px'},
     { "sTitle": "Level",  "mData": "level", sWidth: '60px'},
     { "sTitle": "Resonators",    "mData": "res", sWidth: '70px'},
+    { "sTitle": "Spacing",    "mData": "avgResonatorSpacing", sWidth: '70px'},
     { "sTitle": "Mods",    "mData": "mods", sWidth: '100px'},
     { "sTitle": "Links",    "mData": "links", sWidth: '20px'},
     { "sTitle": "Fields",    "mData": "fields", sWidth: '20px'},
