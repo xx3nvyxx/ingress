@@ -97,7 +97,8 @@ function CollectPortalInfo(a)
               portals[guid].address = properties.portalV2.descriptiveText.ADDRESS
               portals[guid].latE6 = properties.locationE6.latE6
               portals[guid].lngE6 = properties.locationE6.lngE6
-              portals[guid].distance = "…"
+              portals[guid].distance = "-"
+              portals[guid].bearing = "-"
               portals[guid].intelLink = "<a href='http://www.ingress.com/intel?latE6=" + String(portals[guid].latE6) +
                                         "&lngE6=" + String(portals[guid].lngE6) + "&z=19'>Link</a>"
               portals[guid].coords = String(portals[guid].latE6 / 1E6) + ", " + String(portals[guid].lngE6 / 1E6)
@@ -216,7 +217,7 @@ function CollectPortalInfo(a)
   }
 }
 
-function getAllDirectDistance()
+function setAllDistanceAndBearing()
 { 
   geocode_url_template = "http://maps.googleapis.com/maps/api/geocode/json?address=?&sensor=false"
   for (var guid in portals)
@@ -236,44 +237,39 @@ function getAllDirectDistance()
     request.open("GET", geocode_url, false) 
     request.send(null)
     geocode_response = JSON.parse(request.responseText)
-    var dist = "ERR"
     if (geocode_response.status == "OK")
     {
         loc = geocode_response.results[0].geometry.location
         var orig_lat = portals[guid].latE6 / 1E6
         var orig_lng = portals[guid].lngE6 / 1E6
-        var direction = " ";
-        if (orig_lat > loc.lat) {
-        	direction += "N"
-        } else {
-        	direction += "S"
-        }
-        if (orig_lng > loc.lng) {
-        	direction += "E"
-        } else {
-        	direction += "W"
-        }
-        dist = getDirectDistance(loc.lat, loc.lng, orig_lat, orig_lng)
-        dist = Math.round(dist*1000)/1000
-        dist += direction
-    }    portals[guid].distance = dist
-  }
+        setDistanceAndBearing(guid, loc.lat, loc.lng, orig_lat, orig_lng)
+    }  }
   makeTargetsTable()  
 }
 
-
-function getDirectDistance(lat1, lon1, lat2, lon2) {
+function setDistanceAndBearing(guid, lat1, lon1, lat2, lon2) {
   var PI = 3.14159265859
-  var R = 6371 // Radius of the earth in km
+  var R = 3959 // Radius of the earth in miles
   var latDelta = (lat2-lat1) * PI / 180
   var lonDelta = (lon2-lon1) * PI / 180
   var lat1Rad = lat1 * PI / 180
   var lat2Rad = lat2 * PI / 180
+  var sinHalfLatDelta = Math.sin(latDelta/2)
+  var sinHalfLonDelta = Math.sin(lonDelta/2)
+  var cosLat1 = Math.cos(lat1Rad)
+  var cosLat2 = Math.cos(lat2Rad)
 
-  var a = Math.sin(latDelta/2) * Math.sin(latDelta/2) +
-          Math.sin(lonDelta/2) * Math.sin(lonDelta/2) * Math.cos(lat1Rad) * Math.cos(lat2Rad)
+  var a = sinHalfLatDelta * sinHalfLatDelta +
+          sinHalfLonDelta * sinHalfLonDelta * cosLat1 * cosLat2
   var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
-  return R * c
+  var distance = R * c
+  portals[guid].distance = Math.round(distance * 1000) / 1000
+  
+  var y = Math.sin(lonDelta) * cosLat2;
+  var x = cosLat1 * Math.sin(lat2Rad) -
+        Math.sin(lat1Rad) * cosLat2 * Math.cos(lonDelta);
+  var bearing = Math.atan2(y, x) * 180 / PI
+  portals[guid].bearing = Math.round(bearing * 1000) / 1000
 }
 
 //This *SHOULD* work, but it doesn't. I think it has something to do with the greasemonkey/userscript wrapper.
@@ -341,7 +337,7 @@ $("#footer").after(' \
 ')
 $("#refresh").click(makeTargetsTable)
 $("#export").click(makePlayersTable)
-$("#get_distance").click(getAllDirectDistance)
+$("#get_distance").click(setAllDistanceAndBearing)
 
 
 //Populate the table with data.
@@ -389,7 +385,8 @@ function makeTargetsTable()
     { "sTitle": "Title",   "mData": "title", sWidth: '230px'},
     { "sTitle": "Address",  "mData": "address", sWidth: '300px'},
     { "sTitle": "Coordinates", "mData": "coords", sWidth: '170px'},
-    { "sTitle": "Direct Distance (km)", "mData": "distance", sWidth: '170px'},
+    { "sTitle": "Distance", "mData": "distance", sWidth: '100px'},
+    { "sTitle": "Bearing", "mData": "bearing", sWidth: '100px'},
     { "sTitle": "Level",  "mData": "level", sWidth: '60px'},
     { "sTitle": "Health %",  "mData": "health", sWidth: '70px'},
     { "sTitle": "Resonators",    "mData": "res", sWidth: '70px'},
