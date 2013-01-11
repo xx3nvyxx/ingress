@@ -70,7 +70,8 @@ function CollectPortalInfo(a)
 {
   if (("result" in a))
   {
-    if ("map" in a.result)
+    if (typeof a.result == "object" &&
+        "map" in a.result)
     {
       for (var idThing in a.result.map)
       {
@@ -210,8 +211,10 @@ function CollectPortalInfo(a)
     {
       for (var i in a.result)
       {
-        var guid = a.result[i].guid
-        players[guid].nickname = a.result[i].nickname
+        var guid = a.result[i].guid;
+        if (players[guid]) {
+          players[guid].nickname = a.result[i].nickname;
+        }
       }
     }
   }
@@ -313,18 +316,30 @@ $("#footer").after(' \
   <table style="border: 2px solid #59FBEA; display:inline-block;"> \
     <tr> \
       <td>Show:</td> \
-      <td><input type="checkbox" name="level" value="0" checked="checked">L0</input></td> \
-      <td><input type="checkbox" name="level" value="1" checked="checked">L1</input></td> \
-      <td><input type="checkbox" name="level" value="2" checked="checked">L2</input></td> \
-      <td><input type="checkbox" name="level" value="3" checked="checked">L3</input></td> \
-      <td><input type="checkbox" name="level" value="4" checked="checked">L4</input></td> \
-      <td><input type="checkbox" name="level" value="5" checked="checked">L5</input></td> \
-      <td><input type="checkbox" name="level" value="6" checked="checked">L6</input></td> \
-      <td><input type="checkbox" name="level" value="7" checked="checked">L7</input></td> \
-      <td><input type="checkbox" name="level" value="8" checked="checked">L8</input></td> \
-      <td><input type="checkbox" name="faction" value="NEUTRAL">Unclaimed</input></td> \
-      <td><input type="checkbox" name="faction" value="ALIENS" checked="checked">Aliens</input></td> \
-      <td><input type="checkbox" name="faction" value="RESISTANCE" checked="checked">Resistance</input></td> \
+      <td><input type="checkbox" name="level" value="0" id=lv0> \
+          <label for=lv0>L0</label></td> \
+      <td><input type="checkbox" name="level" value="1" id=lv1> \
+          <label for=lv1>L1</label></td> \
+      <td><input type="checkbox" name="level" value="2" id=lv2> \
+          <label for=lv2>L2</label></td> \
+      <td><input type="checkbox" name="level" value="3" id=lv3> \
+          <label for=lv3>L3</label></td> \
+      <td><input type="checkbox" name="level" value="4" id=lv4> \
+          <label for=lv4>L4</label></td> \
+      <td><input type="checkbox" name="level" value="5" id=lv5> \
+          <label for=lv5>L5</label></td> \
+      <td><input type="checkbox" name="level" value="6" checked="checked" id=lv6> \
+          <label for=lv6>L6</label></td> \
+      <td><input type="checkbox" name="level" value="7" checked="checked" id=lv7> \
+          <label for=lv7>L7</label></td> \
+      <td><input type="checkbox" name="level" value="8" checked="checked" id=lv8> \
+          <label for=lv8>L8</label></td> \
+      <td><input type="checkbox" name="faction" value="NEUTRAL" id=f_n> \
+          <label for=f_n>Unclaimed</label></td> \
+      <td><input type="checkbox" name="faction" value="ALIENS" checked="checked" id=f_al> \
+          <label for=f_al>Aliens</label></td> \
+      <td><input type="checkbox" name="faction" value="RESISTANCE" checked="checked" id=f_res> \
+          <label for=f_res>Resistance</label></td> \
     </tr> \
   </table> \
   <table style="border: 2px solid red; display:inline-block;"><tr><td><span id="refresh" style="cursor: pointer">Refresh Targets</span></td></tr></table> \
