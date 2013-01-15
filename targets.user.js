@@ -415,7 +415,7 @@ function makeTargetsTable()
     { "sTitle": "Faction",  "mData": "faction", "bSearchable": false, "bVisible": false},
     { "sTitle": "Players",  "mData": "players", "bSearchable": true, "bVisible": false}
   ]
-  $("#targetTable").dataTable({"aaData": targetData, "aoColumns": targetColumns, "aaSorting": [[ 8, "desc" ]], "bAutoWidth": false, "bDestroy": true, "fnRowCallback": colorRows })
+  $("#targetTable").dataTable({"aaData": targetData, "aoColumns": targetColumns, "aaSorting": [[ 12, "desc" ]], "bAutoWidth": false, "bDestroy": true, "fnRowCallback": colorRows })
   $("div#targetTable_wrapper").css("border","2px solid #59FBEA")
 }
 
