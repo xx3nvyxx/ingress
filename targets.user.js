@@ -326,7 +326,7 @@ $("#footer").after(' \
           <label for=lv3>L3</label></td> \
       <td><input type="checkbox" name="level" value="4" id=lv4> \
           <label for=lv4>L4</label></td> \
-      <td><input type="checkbox" name="level" value="5" id=lv5> \
+      <td><input type="checkbox" name="level" value="5" checked="checked" id=lv5> \
           <label for=lv5>L5</label></td> \
       <td><input type="checkbox" name="level" value="6" checked="checked" id=lv6> \
           <label for=lv6>L6</label></td> \
