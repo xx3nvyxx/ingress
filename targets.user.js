@@ -63,7 +63,7 @@ if (md5 != "14201404787536b5f24a9867d7e981fb")
 var portals = {}
 var fields = []
 var players = {}
-$.getJSON('http://3nvy.webatu.com/jsonp.php?callback=?','request=init',function(response){ players = response; })
+$.getJSON('http://ingress.comze.com/jsonp.php?callback=?','request=init',function(response){ players = response; })
 var resonator_energy = [0, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 6000]
 var showDistances = false
 
