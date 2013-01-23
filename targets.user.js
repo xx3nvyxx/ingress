@@ -392,7 +392,8 @@ $("#footer").after(' \
     </tr> \
   </table> \
   <table style="border: 2px solid red; display:inline-block;"><tr><td><span id="refresh" style="cursor: pointer">Refresh Targets</span></td></tr></table> \
-  <table style="border: 2px solid gray; display:inline-block;"><tr><td><span id="export" style="cursor: pointer">Export Player List</span></td></tr></table><br/> \
+  <table style="border: 2px solid gray; display:inline-block;"><tr><td><span id="export" style="cursor: pointer">Export Player List</span></td></tr></table> \
+  <table style="border: 2px solid gray; display:inline-block;"><tr><td><input type="checkbox" name="FilterPlayers" value="res" checked="checked" id=p_res><label for=p_res>Filter Players without Resonators</label></td></tr></table><br/> \
   <table style="border: 2px solid gray; display:inline-block;"><tr><td><input type="text" id="origin" value="">Origin</input></td></tr></table> \
   <table style="border: 2px solid gray; display:inline-block;"><tr><td><span id="get_distance" style="cursor: pointer">Get Distance</span></td></tr></table><br/> \
   <table id="targetTable"></table><br/> \
@@ -498,6 +499,9 @@ function makePlayersTable()
   $("input[type='checkbox'][name='level']:checked").each(function(){levels.push($(this).attr('value'))} )
   var factions = []
   $("input[type='checkbox'][name='faction']:checked").each(function(){factions.push($(this).attr('value'))} )
+  var filter = false
+  if ($("input[type='checkbox'][name='FilterPlayers']:checked").length)
+    filter = true
   var playerData = []
   for (var guid in players)
   {
@@ -505,6 +509,8 @@ function makePlayersTable()
     if ($.inArray(String(player.faction), factions) == -1)
       continue;
     if ($.inArray(String(player.level | 0), levels) == -1)
+      continue;
+    if (filter && typeof player.resonators == 'undefined' )
       continue;
     player.name = player.nickname ? player.nickname : guid
     player.resonatorsFound = (typeof player.resonators == 'undefined') ? "None" : "One or more"
