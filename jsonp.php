@@ -20,7 +20,7 @@ try {
 $request = $_GET['request'];
 if ($request=='init')
 {
-  $sql = "SELECT * FROM `players`";
+  $sql = "SELECT * FROM `players` ORDER BY level DESC, CASE nickname WHEN '' THEN 'zzzzzzzzzzzzz' ELSE nickname END ASC";
   $data = '{';
   foreach ($dbh->query($sql) as $row)
   {
