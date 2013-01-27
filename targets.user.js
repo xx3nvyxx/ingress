@@ -176,7 +176,8 @@ function CollectPortalInfo(a)
               {
                 portals[guid].avgResonatorSpacing /=  portals[guid].numResonators
               }
-              portals[guid].health = Math.round(portals[guid].actual_energy / portals[guid].max_energy * 10000) / 100              portals[guid].sortedResonators = Number(portals[guid].resonators.split('').sort().reverse().join(''))
+              portals[guid].health = Math.round(portals[guid].actual_energy / portals[guid].max_energy * 10000) / 100
+              portals[guid].sortedResonators = Number(portals[guid].resonators.split('').sort().reverse().join(''))
               portals[guid].mitigation = 0
               portals[guid].mods = ""
               for (var i in properties.portalV2.linkedModArray)
@@ -277,7 +278,8 @@ function setAllDistanceAndBearing()
     if (origin == "")
     {
       continue
-    }
+    }
+
     coords = portals[guid].coords
     if (coords === "undefined") {
       continue
@@ -287,14 +289,16 @@ function setAllDistanceAndBearing()
     var request = new XMLHttpRequest()
     request.open("GET", geocode_url, false) 
     request.send(null)
-    geocode_response = JSON.parse(request.responseText)
+    geocode_response = JSON.parse(request.responseText)
+
     if (geocode_response.status == "OK")
     {
         loc = geocode_response.results[0].geometry.location
         var orig_lat = portals[guid].latE6 / 1E6
         var orig_lng = portals[guid].lngE6 / 1E6
         setDistanceAndBearing(guid, loc.lat, loc.lng, orig_lat, orig_lng)
-    }  }
+    }
+  }
   showDistances = true
   makeTargetsTable()  
 }
@@ -512,7 +516,7 @@ function makePlayersTable()
       continue;
     if (filter && typeof player.resonators == 'undefined' )
       continue;
-    player.name = player.nickname ? player.nickname : guid
+    player.name = player.nickname ? "<span title='" + guid + "'>" + player.nickname + "</span>" : guid
     player.resonatorsFound = (typeof player.resonators == 'undefined') ? "None" : "One or more"
     playerData.push(player)
   }
