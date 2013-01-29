@@ -54,7 +54,7 @@ m(c,d,g,i,b[f+(3*a+5)%16],4,h[a]),i=m(i,c,d,g,b[f+(3*a+8)%16],11,h[a+1]),g=m(g,i
 //14201404787536b5f24a9867d7e981fb is the MD5 of the current version of function S.
 //Since I just want to add a single line to the function, I have to ensure nothing has changed from the version I know.
 var md5 = CryptoJS.MD5(String(S.prototype.constructor))
-if (md5 != "14201404787536b5f24a9867d7e981fb")
+if (md5 != "7dd1bbbbae015515411974441bbf4b92")
 {
   alert("NianticOps changed something, please get a new version\n\nCurrent version md5 =" + md5);
   return;
@@ -343,7 +343,7 @@ window.S = new Function (
 //This is why I break out if the function changes from my known version.
 window.S = function (a, b, c, d, e) {
   c.method = b;
-  var f = t(a.Fc, a, b, e), g = t(a.cd, a, b, d), h = t(a.jd, a);
+  var f = t(a.Fc, a, b, e), g = t(a.bd, a, b, d), h = t(a.gd, a);
   _gaq.push(["_trackEvent", "RPC", b]);
   c = $.ajax({type:"POST", url:"/rpc/" + b, dataType:"json", contentType:"application/json; charset=utf-8", data:JSON.stringify(c), Jd:function() {
     f()
