@@ -51,12 +51,12 @@ m(c,d,g,i,b[f+(3*a+5)%16],4,h[a]),i=m(i,c,d,g,b[f+(3*a+8)%16],11,h[a+1]),g=m(g,i
 24)&16711935|(a<<24|a>>>8)&4278255360;b.sigBytes=4*(f.length+1);this._process();b=this._hash.words;for(f=0;4>f;f++)a=b[f],b[f]=(a<<8|a>>>24)&16711935|(a<<24|a>>>8)&4278255360}});j.MD5=k._createHelper(p);j.HmacMD5=k._createHmacHelper(p)})(Math);
 //END CryptoJS
 
-//14201404787536b5f24a9867d7e981fb is the MD5 of the current version of function S.
+//7dd1bbbbae015515411974441bbf4b92 is the MD5 of the current version of function S.
 //Since I just want to add a single line to the function, I have to ensure nothing has changed from the version I know.
 var md5 = CryptoJS.MD5(String(S.prototype.constructor))
 if (md5 != "7dd1bbbbae015515411974441bbf4b92")
 {
-  alert("NianticOps changed something, please get a new version\n\nCurrent version md5 =" + md5);
+  alert("NianticOps changed something, please get a new version\n\nCurrent version md5 = " + md5);
   return;
 }
 
