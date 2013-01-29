@@ -65,6 +65,7 @@ var portals = {}
 var fields = []
 var serverIsUp = true
 var players = {}
+var portalDataTable = undefined;
 $.ajax({
   url: "http://ingress.comze.com/jsonp.php?callback=?",
   dataType: 'json',
@@ -328,6 +329,50 @@ function setDistanceAndBearing(guid, lat1, lon1, lat2, lon2) {
   portals[guid].bearing = Math.round(bearing * 1000) / 1000
 }
 
+function getScores() {
+  var scores = {};
+  for (var guid in portals) {
+    var portal = portals[guid];
+
+    // If anything's not defined, skip
+    if (!portal ||
+        !portal.faction ||
+        !portal.level ||
+        !portal.address) continue;
+
+    // This rounds down... seems like magic
+    var level = portal.level | 0;
+
+    // Initialize
+    if ( !(portal.faction in scores) )
+      scores[portal.faction] = {};
+    if ( !(level in scores[portal.faction]) )
+      scores[portal.faction][level] = 0;
+
+    // Count
+    ++scores[portal.faction][level];
+  }
+
+  alert("Portal counts:\nResistance L6,L7,L8\nEnlightened L6,L7,L8\n\n" + 
+        (scores['RESISTANCE'][6] || 0) + "\t" + 
+        (scores['RESISTANCE'][7] || 0) + "\t" + 
+        (scores['RESISTANCE'][8] || 0) + "\t" + 
+        (scores['ALIENS'][6] || 0) + "\t" + 
+        (scores['ALIENS'][7] || 0) + "\t" + 
+        (scores['ALIENS'][8] || 0));
+}
+
+function gatherCoordinates() {
+  var filteredData = portalDataTable._('tr', {"filter": "applied"});
+  var latLongs = "";
+  for (var obj in filteredData) {
+    latLongs += filteredData[obj].coords.replace(/\s/g, '') + "\n";
+  }
+  document.querySelector("#graphCoords").innerHTML = latLongs;
+  document.querySelector("#graphCoords").select();
+}
+
+
 //This *SHOULD* work, but it doesn't. I think it has something to do with the greasemonkey/userscript wrapper.
 /*
 window.S = new Function (
@@ -399,14 +444,20 @@ $("#footer").after(' \
   <table style="border: 2px solid gray; display:inline-block;"><tr><td><span id="export" style="cursor: pointer">Export Player List</span></td></tr></table> \
   <table style="border: 2px solid gray; display:inline-block;"><tr><td><input type="checkbox" name="FilterPlayers" value="res" checked="checked" id=p_res><label for=p_res>Filter Players without Resonators</label></td></tr></table><br/> \
   <table style="border: 2px solid gray; display:inline-block;"><tr><td><input type="text" id="origin" value="">Origin</input></td></tr></table> \
-  <table style="border: 2px solid gray; display:inline-block;"><tr><td><span id="get_distance" style="cursor: pointer">Get Distance</span></td></tr></table><br/> \
+  <table style="border: 2px solid gray; display:inline-block;"><tr><td><span id="get_distance" style="cursor: pointer">Get Distance</span></td></tr></table> \
+  <table style="border: 2px solid gray; display:inline-block; margin-left:20px;"><tr><td><span id="get_score" style="cursor: pointer">Get Portal Counts</span></td></tr></table><br/> \
   <table id="targetTable"></table><br/> \
   <table id="playerTable"></table> \
+  <textarea id="graphCoords"></textarea> \
+  <table style="border: 2px solid gray; display:inline-block;"><tr><td><span id="grab_coords" style="cursor: pointer">Grab Coordinates</span></td></tr></table><br/> \
+  <span style="font-size:smaller">For pasting in here: <a href="http://www.darrinward.com/lat-long/">http://www.darrinward.com/lat-long/</a></span> \
 </div> \
 ')
 $("#refresh").click(makeTargetsTable)
 $("#export").click(makePlayersTable)
 $("#get_distance").click(setAllDistanceAndBearing)
+$("#get_score").click(getScores)
+$("#grab_coords").click(gatherCoordinates)
 
 
 //Populate the tables with data.
@@ -493,7 +544,7 @@ function makeTargetsTable()
       { "sTitle": "Players",  "mData": "players", "bSearchable": true, "bVisible": false}
     ]
   }
-  $("#targetTable").dataTable({"aaData": targetData, "aoColumns": targetColumns, "aaSorting": [[ 12, "desc" ]], "bAutoWidth": false, "bDestroy": true, "fnRowCallback": colorRows })
+  portalDataTable = $("#targetTable").dataTable({"aaData": targetData, "aoColumns": targetColumns, "aaSorting": [[ 12, "desc" ]], "bAutoWidth": false, "bDestroy": true, "fnRowCallback": colorRows })
   $("div#targetTable_wrapper").css("border","2px solid #59FBEA")
 }
 
