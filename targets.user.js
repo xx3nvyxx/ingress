@@ -56,7 +56,7 @@ m(c,d,g,i,b[f+(3*a+5)%16],4,h[a]),i=m(i,c,d,g,b[f+(3*a+8)%16],11,h[a+1]),g=m(g,i
 var md5 = CryptoJS.MD5(String(S.prototype.constructor))
 if (md5 != "7dd1bbbbae015515411974441bbf4b92")
 {
-  alert("NianticOps changed something, please get a new version\n\nCurrent version md5 =" + md5);
+  alert("NianticOps changed something, please get a new version\n\nCurrent version md5 = " + md5);
   return;
 }
 
@@ -65,6 +65,7 @@ var portals = {}
 var fields = []
 var serverIsUp = true
 var players = {}
+var portalDataTable = undefined;
 $.ajax({
   url: "http://ingress.comze.com/jsonp.php?callback=?",
   dataType: 'json',
@@ -176,7 +177,8 @@ function CollectPortalInfo(a)
               {
                 portals[guid].avgResonatorSpacing /=  portals[guid].numResonators
               }
-              portals[guid].health = Math.round(portals[guid].actual_energy / portals[guid].max_energy * 10000) / 100              portals[guid].sortedResonators = Number(portals[guid].resonators.split('').sort().reverse().join(''))
+              portals[guid].health = Math.round(portals[guid].actual_energy / portals[guid].max_energy * 10000) / 100
+              portals[guid].sortedResonators = Number(portals[guid].resonators.split('').sort().reverse().join(''))
               portals[guid].mitigation = 0
               portals[guid].mods = ""
               for (var i in properties.portalV2.linkedModArray)
@@ -277,7 +279,8 @@ function setAllDistanceAndBearing()
     if (origin == "")
     {
       continue
-    }
+    }
+
     coords = portals[guid].coords
     if (coords === "undefined") {
       continue
@@ -287,14 +290,16 @@ function setAllDistanceAndBearing()
     var request = new XMLHttpRequest()
     request.open("GET", geocode_url, false) 
     request.send(null)
-    geocode_response = JSON.parse(request.responseText)
+    geocode_response = JSON.parse(request.responseText)
+
     if (geocode_response.status == "OK")
     {
         loc = geocode_response.results[0].geometry.location
         var orig_lat = portals[guid].latE6 / 1E6
         var orig_lng = portals[guid].lngE6 / 1E6
         setDistanceAndBearing(guid, loc.lat, loc.lng, orig_lat, orig_lng)
-    }  }
+    }
+  }
   showDistances = true
   makeTargetsTable()  
 }
@@ -324,6 +329,50 @@ function setDistanceAndBearing(guid, lat1, lon1, lat2, lon2) {
   portals[guid].bearing = Math.round(bearing * 1000) / 1000
 }
 
+function getScores() {
+  var scores = {};
+  for (var guid in portals) {
+    var portal = portals[guid];
+
+    // If anything's not defined, skip
+    if (!portal ||
+        !portal.faction ||
+        !portal.level ||
+        !portal.address) continue;
+
+    // This rounds down... seems like magic
+    var level = portal.level | 0;
+
+    // Initialize
+    if ( !(portal.faction in scores) )
+      scores[portal.faction] = {};
+    if ( !(level in scores[portal.faction]) )
+      scores[portal.faction][level] = 0;
+
+    // Count
+    ++scores[portal.faction][level];
+  }
+
+  alert("Portal counts:\nResistance L6,L7,L8\nEnlightened L6,L7,L8\n\n" + 
+        (scores['RESISTANCE'][6] || 0) + "\t" + 
+        (scores['RESISTANCE'][7] || 0) + "\t" + 
+        (scores['RESISTANCE'][8] || 0) + "\t" + 
+        (scores['ALIENS'][6] || 0) + "\t" + 
+        (scores['ALIENS'][7] || 0) + "\t" + 
+        (scores['ALIENS'][8] || 0));
+}
+
+function gatherCoordinates() {
+  var filteredData = portalDataTable._('tr', {"filter": "applied"});
+  var latLongs = "";
+  for (var obj in filteredData) {
+    latLongs += filteredData[obj].coords.replace(/\s/g, '') + "\n";
+  }
+  document.querySelector("#graphCoords").innerHTML = latLongs;
+  document.querySelector("#graphCoords").select();
+}
+
+
 //This *SHOULD* work, but it doesn't. I think it has something to do with the greasemonkey/userscript wrapper.
 /*
 window.S = new Function (
@@ -341,7 +390,7 @@ window.S = new Function (
 Old function S, retired on 2013/01/29 - MD5 was 14201404787536b5f24a9867d7e981fb
 window.S = function (a, b, c, d, e) {
   c.method = b;
-  var f = t(a.Fc, a, b, e), g = t(a.cd, a, b, d), h = t(a.jd, a);
+  var f = t(a.Fc, a, b, e), g = t(a.bd, a, b, d), h = t(a.gd, a);
   _gaq.push(["_trackEvent", "RPC", b]);
   c = $.ajax({type:"POST", url:"/rpc/" + b, dataType:"json", contentType:"application/json; charset=utf-8", data:JSON.stringify(c), Jd:function() {
     f()
@@ -415,14 +464,20 @@ $("#footer").after(' \
   <table style="border: 2px solid gray; display:inline-block;"><tr><td><span id="export" style="cursor: pointer">Export Player List</span></td></tr></table> \
   <table style="border: 2px solid gray; display:inline-block;"><tr><td><input type="checkbox" name="FilterPlayers" value="res" checked="checked" id=p_res><label for=p_res>Filter Players without Resonators</label></td></tr></table><br/> \
   <table style="border: 2px solid gray; display:inline-block;"><tr><td><input type="text" id="origin" value="">Origin</input></td></tr></table> \
-  <table style="border: 2px solid gray; display:inline-block;"><tr><td><span id="get_distance" style="cursor: pointer">Get Distance</span></td></tr></table><br/> \
+  <table style="border: 2px solid gray; display:inline-block;"><tr><td><span id="get_distance" style="cursor: pointer">Get Distance</span></td></tr></table> \
+  <table style="border: 2px solid gray; display:inline-block; margin-left:20px;"><tr><td><span id="get_score" style="cursor: pointer">Get Portal Counts</span></td></tr></table><br/> \
   <table id="targetTable"></table><br/> \
   <table id="playerTable"></table> \
+  <textarea id="graphCoords"></textarea> \
+  <table style="border: 2px solid gray; display:inline-block;"><tr><td><span id="grab_coords" style="cursor: pointer">Grab Coordinates</span></td></tr></table><br/> \
+  <span style="font-size:smaller">For pasting in here: <a href="http://www.darrinward.com/lat-long/">http://www.darrinward.com/lat-long/</a></span> \
 </div> \
 ')
 $("#refresh").click(makeTargetsTable)
 $("#export").click(makePlayersTable)
 $("#get_distance").click(setAllDistanceAndBearing)
+$("#get_score").click(getScores)
+$("#grab_coords").click(gatherCoordinates)
 
 
 //Populate the tables with data.
@@ -509,7 +564,7 @@ function makeTargetsTable()
       { "sTitle": "Players",  "mData": "players", "bSearchable": true, "bVisible": false}
     ]
   }
-  $("#targetTable").dataTable({"aaData": targetData, "aoColumns": targetColumns, "aaSorting": [[ 12, "desc" ]], "bAutoWidth": false, "bDestroy": true, "fnRowCallback": colorRows })
+  portalDataTable = $("#targetTable").dataTable({"aaData": targetData, "aoColumns": targetColumns, "aaSorting": [[ 12, "desc" ]], "bAutoWidth": false, "bDestroy": true, "fnRowCallback": colorRows })
   $("div#targetTable_wrapper").css("border","2px solid #59FBEA")
 }
 
@@ -532,7 +587,7 @@ function makePlayersTable()
       continue;
     if (filter && typeof player.resonators == 'undefined' )
       continue;
-    player.name = player.nickname ? player.nickname : guid
+    player.name = player.nickname ? "<span title='" + guid + "'>" + player.nickname + "</span>" : guid
     player.resonatorsFound = (typeof player.resonators == 'undefined') ? "None" : "One or more"
     playerData.push(player)
   }
