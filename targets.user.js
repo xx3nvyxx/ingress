@@ -87,7 +87,6 @@ function readCallback(response, status)
 }
 
 var resonator_energy = [0, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 6000]
-var showDistances = false
 
 //collect all relevant portal info into a global variable for use when creating the table.
 function CollectPortalInfo(a)
@@ -122,8 +121,7 @@ function CollectPortalInfo(a)
               portals[guid].address = properties.portalV2.descriptiveText.ADDRESS
               portals[guid].latE6 = properties.locationE6.latE6
               portals[guid].lngE6 = properties.locationE6.lngE6
-              portals[guid].distance = "-"
-              portals[guid].bearing = "-"
+              portals[guid].region = getRegion(guid)
               portals[guid].intelLink = "<a href='http://www.ingress.com/intel?latE6=" + String(portals[guid].latE6) +
                                         "&lngE6=" + String(portals[guid].lngE6) + "&z=19'>Link</a>"
               portals[guid].coords = String(portals[guid].latE6 / 1E6) + ", " + String(portals[guid].lngE6 / 1E6)
@@ -270,43 +268,42 @@ function callback2(response, status)
     serverIsUp = false
 }
 
-function setAllDistanceAndBearing()
-{ 
-  geocode_url_template = "http://maps.googleapis.com/maps/api/geocode/json?address=?&sensor=false"
-  for (var guid in portals)
-  {  
-    origin = document.getElementById("origin").value
-    if (origin == "")
-    {
-      continue
-    }
 
-    coords = portals[guid].coords
-    if (coords === "undefined") {
-      continue
-    }
+var REGIONS = {'SF - FiDi' : [37.794683, -122.398424],
+               'SF - GGP' : [37.767916, -122.476466],
+               'SF - Mission' : [37.759046, -122.409629],
+               'SF - Sunset' : [37.74278, -122.485225],
+               'Oakland' : [37.837028, -122.267815],
+               'San Mateo' : [37.563538, -122.325053],
+               'Palo Alto' : [37.4414, -122.1578],
+               'Mtn View' : [37.393232, -122.077812],
+               'Sunnyvale' : [37.39025, -122.031046],
+               'Cupertino' : [37.321643, -122.043707],
+               'San Jose North' : [37.381656, -121.899831],
+               'San Jose South' : [37.272044, -121.890409],
+               'Fremont' : [37.548608, -121.987784],
+               'Hayward' : [37.6708, -122.089617],
+               }
 
-    geocode_url = geocode_url_template.replace("address=?", "address=" + origin)
-    var request = new XMLHttpRequest()
-    request.open("GET", geocode_url, false) 
-    request.send(null)
-    geocode_response = JSON.parse(request.responseText)
-
-    if (geocode_response.status == "OK")
-    {
-        loc = geocode_response.results[0].geometry.location
-        var orig_lat = portals[guid].latE6 / 1E6
-        var orig_lng = portals[guid].lngE6 / 1E6
-        setDistanceAndBearing(guid, loc.lat, loc.lng, orig_lat, orig_lng)
-    }
-  }
-  showDistances = true
-  makeTargetsTable()  
+function getRegion(guid) {
+	best = 25
+	closest = '-'
+	for (var region in REGIONS)
+	{
+		dist = getDistance(guid, REGIONS[region][0], REGIONS[region][1])
+		if (dist < best) {
+			best = dist
+			closest = region
+		}
+	}
+	return closest
 }
 
-function setDistanceAndBearing(guid, lat1, lon1, lat2, lon2) {
+function getDistance(guid, lat2, lon2) {
   var PI = 3.14159265859
   var R = 3959 // Radius of the earth in miles
+  var lat1 = portals[guid].latE6 / 1E6
+  var lon1 = portals[guid].lngE6 / 1E6  
   var latDelta = (lat2-lat1) * PI / 180
   var lonDelta = (lon2-lon1) * PI / 180
   var lat1Rad = lat1 * PI / 180
@@ -320,13 +317,7 @@ function setDistanceAndBearing(guid, lat1, lon1, lat2, lon2) {
           sinHalfLonDelta * sinHalfLonDelta * cosLat1 * cosLat2
   var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
   var distance = R * c
-  portals[guid].distance = Math.round(distance * 1000) / 1000
-  
-  var y = Math.sin(lonDelta) * cosLat2;
-  var x = cosLat1 * Math.sin(lat2Rad) -
-        Math.sin(lat1Rad) * cosLat2 * Math.cos(lonDelta);
-  var bearing = Math.atan2(y, x) * 180 / PI
-  portals[guid].bearing = Math.round(bearing * 1000) / 1000
+  return Math.round(distance * 1000) / 1000  
 }
 
 function getScores() {
@@ -483,8 +474,6 @@ $("#footer").after(' \
   <table style="border: 2px solid red; display:inline-block;"><tr><td><span id="refresh" style="cursor: pointer">Refresh Targets</span></td></tr></table> \
   <table style="border: 2px solid gray; display:inline-block;"><tr><td><span id="export" style="cursor: pointer">Export Player List</span></td></tr></table> \
   <table style="border: 2px solid gray; display:inline-block;"><tr><td><input type="checkbox" name="FilterPlayers" value="res" checked="checked" id=p_res><label for=p_res>Filter Players without Resonators</label></td></tr></table><br/> \
-  <table style="border: 2px solid gray; display:inline-block;"><tr><td><input type="text" id="origin" value="">Origin</input></td></tr></table> \
-  <table style="border: 2px solid gray; display:inline-block;"><tr><td><span id="get_distance" style="cursor: pointer">Get Distance</span></td></tr></table> \
   <table style="border: 2px solid gray; display:inline-block; margin-left:20px;"><tr><td><span id="get_score" style="cursor: pointer">Get Portal Counts</span></td></tr></table><br/> \
   <table id="targetTable"></table><br/> \
   <table id="playerTable"></table> \
@@ -495,7 +484,6 @@ $("#footer").after(' \
 ')
 $("#refresh").click(makeTargetsTable)
 $("#export").click(makePlayersTable)
-$("#get_distance").click(setAllDistanceAndBearing)
 $("#get_score").click(getScores)
 $("#grab_coords").click(gatherCoordinates)
 
@@ -540,50 +528,24 @@ function makeTargetsTable()
     portal.AP = portal.fields * 750 + portal.links * 187 + portal.numResonators * 75
     targetData.push(portal)
   }
-  if (showDistances)
-  {
-    var targetColumns = [
-      { "sTitle": "Title",   "mData": "title", sWidth: '230px'},
-      { "sTitle": "Address",  "mData": "address", sWidth: '300px'},
-      { "sTitle": "Coordinates", "mData": "coords", sWidth: '170px'},
-      { "sTitle": "Distance", "mData": "distance", sWidth: '100px'},
-      { "sTitle": "Bearing", "mData": "bearing", sWidth: '100px'},
-      { "sTitle": "Level",  "mData": "level", sWidth: '60px'},
-      { "sTitle": "Health %",  "mData": "health", sWidth: '70px'},
-      { "sTitle": "Spacing",    "mData": "avgResonatorSpacing", sWidth: '70px'},
-      { "sTitle": "Resonators",    "mData": "res", sWidth: '70px'},
-      { "sTitle": "Mods",    "mData": "mods", sWidth: '100px'},
-      { "sTitle": "Links",    "mData": "links", sWidth: '20px'},
-      { "sTitle": "Fields",    "mData": "fields", sWidth: '20px'},
-      { "sTitle": "AP",    "mData": "AP", sWidth: '70px'},
-      { "sTitle": "MU",    "mData": "MU", sWidth: '90px'},
-      { "sTitle": "Intel",    "mData": "intelLink", sWidth: '35px'},
-      { "sTitle": "Faction",  "mData": "faction", "bSearchable": false, "bVisible": false},
-      { "sTitle": "Players",  "mData": "players", "bSearchable": true, "bVisible": false}
-    ]
-  }
-  else
-  {
-    var targetColumns = [
-      { "sTitle": "Title",   "mData": "title", sWidth: '230px'},
-      { "sTitle": "Address",  "mData": "address", sWidth: '300px'},
-      { "sTitle": "Coordinates", "mData": "coords", sWidth: '170px'},
-      { "sTitle": "Distance", "mData": "distance", sWidth: '100px', "bSearchable": false, "bVisible": false},
-      { "sTitle": "Bearing", "mData": "bearing", sWidth: '100px', "bSearchable": false, "bVisible": false},
-      { "sTitle": "Level",  "mData": "level", sWidth: '60px'},
-      { "sTitle": "Health %",  "mData": "health", sWidth: '70px'},
-      { "sTitle": "Spacing",    "mData": "avgResonatorSpacing", sWidth: '70px'},
-      { "sTitle": "Resonators",    "mData": "res", sWidth: '70px'},
-      { "sTitle": "Mods",    "mData": "mods", sWidth: '100px'},
-      { "sTitle": "Links",    "mData": "links", sWidth: '20px'},
-      { "sTitle": "Fields",    "mData": "fields", sWidth: '20px'},
-      { "sTitle": "AP",    "mData": "AP", sWidth: '70px'},
-      { "sTitle": "MU",    "mData": "MU", sWidth: '90px'},
-      { "sTitle": "Intel",    "mData": "intelLink", sWidth: '35px'},
-      { "sTitle": "Faction",  "mData": "faction", "bSearchable": false, "bVisible": false},
-      { "sTitle": "Players",  "mData": "players", "bSearchable": true, "bVisible": false}
-    ]
-  }
+  var targetColumns = [
+	{ "sTitle": "Title",   "mData": "title", sWidth: '230px'},
+	{ "sTitle": "Address",  "mData": "address", sWidth: '300px'},
+	{ "sTitle": "Coordinates", "mData": "coords", sWidth: '170px'},
+	{ "sTitle": "Region", "mData": "region", sWidth: '120px'},
+	{ "sTitle": "Level",  "mData": "level", sWidth: '60px'},
+	{ "sTitle": "Health %",  "mData": "health", sWidth: '70px'},
+	{ "sTitle": "Spacing",    "mData": "avgResonatorSpacing", sWidth: '70px'},
+	{ "sTitle": "Resonators",    "mData": "res", sWidth: '70px'},
+	{ "sTitle": "Mods",    "mData": "mods", sWidth: '100px'},
+    { "sTitle": "Links",    "mData": "links", sWidth: '20px'},
+	{ "sTitle": "Fields",    "mData": "fields", sWidth: '20px'},
+	{ "sTitle": "AP",    "mData": "AP", sWidth: '70px'},
+	{ "sTitle": "MU",    "mData": "MU", sWidth: '90px'},
+	{ "sTitle": "Intel",    "mData": "intelLink", sWidth: '35px'},
+	{ "sTitle": "Faction",  "mData": "faction", "bSearchable": false, "bVisible": false},
+	{ "sTitle": "Players",  "mData": "players", "bSearchable": true, "bVisible": false}
+  ]
   portalDataTable = $("#targetTable").dataTable({"aaData": targetData, "aoColumns": targetColumns, "aaSorting": [[ 12, "desc" ]], "bAutoWidth": false, "bDestroy": true, "fnRowCallback": colorRows })
   $("div#targetTable_wrapper").css("border","2px solid #59FBEA")
 }
