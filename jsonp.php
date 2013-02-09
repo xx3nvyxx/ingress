@@ -2,10 +2,10 @@
 
 header('Content-Type: text/javascript; charset=UTF-8');
 
-$mysql_host = "mysql5.000webhost.com";
-$mysql_database = "a2789575_ingress";
-$mysql_user = "a2789575_ingress";
-$mysql_password = "hHXesyrxXtThZ8Vm72Y";
+$mysql_host = "ingressdb.cesmaxaxz6uk.us-west-2.rds.amazonaws.com";
+$mysql_database = "ingress";
+$mysql_user = "ingress";
+$mysql_password = "pCqnUXFaDDajZur6";
 $mysql_table = "players";
 
 

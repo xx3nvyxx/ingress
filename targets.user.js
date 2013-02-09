@@ -67,7 +67,7 @@ var serverIsUp = true
 var players = {}
 var portalDataTable = undefined;
 $.ajax({
-  url: "http://ingress.comze.com/jsonp.php?callback=?",
+  url: "http://ec2-50-112-48-5.us-west-2.compute.amazonaws.com/jsonp.php?callback=?",
   dataType: 'json',
   data: "request=init",
   timeout: 5000
@@ -162,7 +162,7 @@ function CollectPortalInfo(a)
                   }
                   if ("guid" in data && serverIsUp)
                   {
-                    $.ajax({url: "http://ingress.comze.com/jsonp.php?request=storeLevel&callback=?", dataType: 'json', data: data, complete: callback2, timeout: 3000 })
+                    $.ajax({url: "http://ec2-50-112-48-5.us-west-2.compute.amazonaws.com/jsonp.php?request=storeLevel&callback=?", dataType: 'json', data: data, complete: callback2, timeout: 3000 })
                   }
                   players[resonator.ownerGuid].resonators = (typeof players[resonator.ownerGuid].resonators == 'undefined') ? 1 : players[resonator.ownerGuid].resonators + 1
                 }
@@ -245,7 +245,7 @@ function CollectPortalInfo(a)
         {
           players[guid] = {"nickname": "", "level": 0, "faction": "UNKNOWN"}
           if (serverIsUp)
-            $.ajax({"url": "http://ingress.comze.com/jsonp.php?request=storeLevel&callback=?", "dataType": "json", "data": {"guid": guid, "level": 0, "faction": "UNKNOWN"}, complete: callback2, timeout: 3000 })
+            $.ajax({"url": "http://ec2-50-112-48-5.us-west-2.compute.amazonaws.com/jsonp.php?request=storeLevel&callback=?", "dataType": "json", "data": {"guid": guid, "level": 0, "faction": "UNKNOWN"}, complete: callback2, timeout: 3000 })
         }
         if (typeof players[guid].nickname == 'undefined' || players[guid].nickname == "")
         {
@@ -254,7 +254,7 @@ function CollectPortalInfo(a)
           if (serverIsUp)
           {
             var data = {"guid": guid, "nickname": nickname}
-            $.ajax({url: "http://ingress.comze.com/jsonp.php?request=storeName&callback=?", dataType: 'json', data: data, complete: callback2, timeout: 3000 })
+            $.ajax({url: "http://ec2-50-112-48-5.us-west-2.compute.amazonaws.com/jsonp.php?request=storeName&callback=?", dataType: 'json', data: data, complete: callback2, timeout: 3000 })
           }
         }
       }
