@@ -538,7 +538,7 @@ function makeTargetsTable()
 	{ "sTitle": "Spacing",    "mData": "avgResonatorSpacing", sWidth: '70px'},
 	{ "sTitle": "Resonators",    "mData": "res", sWidth: '70px'},
 	{ "sTitle": "Mods",    "mData": "mods", sWidth: '100px'},
-    { "sTitle": "Links",    "mData": "links", sWidth: '20px'},
+	{ "sTitle": "Links",    "mData": "links", sWidth: '20px'},
 	{ "sTitle": "Fields",    "mData": "fields", sWidth: '20px'},
 	{ "sTitle": "AP",    "mData": "AP", sWidth: '70px'},
 	{ "sTitle": "MU",    "mData": "MU", sWidth: '90px'},
@@ -546,7 +546,7 @@ function makeTargetsTable()
 	{ "sTitle": "Faction",  "mData": "faction", "bSearchable": false, "bVisible": false},
 	{ "sTitle": "Players",  "mData": "players", "bSearchable": true, "bVisible": false}
   ]
-  portalDataTable = $("#targetTable").dataTable({"aaData": targetData, "aoColumns": targetColumns, "aaSorting": [[ 12, "desc" ]], "bAutoWidth": false, "bDestroy": true, "fnRowCallback": colorRows })
+  portalDataTable = $("#targetTable").dataTable({"aaData": targetData, "aoColumns": targetColumns, "aaSorting": [[ 11, "desc" ]], "bAutoWidth": false, "bDestroy": true, "fnRowCallback": colorRows })
   $("div#targetTable_wrapper").css("border","2px solid #59FBEA")
 }
 
