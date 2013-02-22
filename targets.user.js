@@ -350,7 +350,7 @@ function getScores() {
         (scores['RESISTANCE'][8] || 0) + "\t" + 
         (scores['ALIENS'][6] || 0) + "\t" + 
         (scores['ALIENS'][7] || 0) + "\t" + 
-        (scores['ALIENS'][8] || 0));
+        (scores['ALIENS'][8] || 0) + "\t" + (new Date()).toLocaleString());
 }
 
 function gatherCoordinates() {
