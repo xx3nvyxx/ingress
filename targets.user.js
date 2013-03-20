@@ -117,7 +117,16 @@ function CollectPortalInfo(a)
                 portals[guid] = {"fields": portals[guid].fields, "MU": portals[guid].MU}
               }
               portals[guid].faction = properties.controllingTeam.team
-              portals[guid].title = properties.portalV2.descriptiveText.TITLE
+              if (properties.portalV2.descriptiveText.TITLE)
+              {
+                  portals[guid].title = properties.portalV2.descriptiveText.TITLE
+              }
+              else
+              {
+                  // For example http://www.ingress.com/intel?latE6=42731743&lngE6=-84476957&z=19
+                  // Shown as no name in map, but [Unnamed Portal] in comms
+                  portals[guid].title = "[Unnamed Portal]"
+              }
               portals[guid].address = properties.portalV2.descriptiveText.ADDRESS
               portals[guid].latE6 = properties.locationE6.latE6
               portals[guid].lngE6 = properties.locationE6.lngE6
@@ -128,6 +137,7 @@ function CollectPortalInfo(a)
               portals[guid].level = 0
               portals[guid].resonators = ""
               portals[guid].numResonators = 0
+              portals[guid].players = ""
               portals[guid].avgResonatorSpacing = 0
               portals[guid].actual_energy = 0
               portals[guid].max_energy = 0
@@ -183,7 +193,14 @@ function CollectPortalInfo(a)
               {
                 portals[guid].avgResonatorSpacing /=  portals[guid].numResonators
               }
-              portals[guid].health = Math.round(portals[guid].actual_energy / portals[guid].max_energy * 10000) / 100
+              if (portals[guid].actual_energy > 0)
+              {
+                portals[guid].health = Math.round(portals[guid].actual_energy / portals[guid].max_energy * 10000) / 100
+              }
+              else
+              {
+                portals[guid].health = 0
+              }
               portals[guid].sortedResonators = Number(portals[guid].resonators.split('').sort().reverse().join(''))
               portals[guid].mitigation = 0
               portals[guid].mods = ""
