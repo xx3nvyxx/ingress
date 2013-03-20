@@ -131,6 +131,14 @@ function CollectPortalInfo(a)
               portals[guid].avgResonatorSpacing = 0
               portals[guid].actual_energy = 0
               portals[guid].max_energy = 0
+              if (properties.imageByUrl && properties.imageByUrl.imageUrl)
+              {
+                portals[guid].imageLink = "<a href='" + properties.imageByUrl.imageUrl + "'>Link</a>"
+              }
+              else
+              {
+                portals[guid].imageLink = ""
+              }
               for (var i in properties.resonatorArray.resonators)
               {
                 var resonator = properties.resonatorArray.resonators[i]
@@ -606,6 +614,7 @@ function makeTargetsTable()
 	{ "sTitle": "AP",    "mData": "AP", sWidth: '70px'},
 	{ "sTitle": "MU",    "mData": "MU", sWidth: '90px'},
 	{ "sTitle": "Intel",    "mData": "intelLink", sWidth: '35px'},
+	{ "sTitle": "Image",    "mData": "imageLink", sWidth: '35px'},
 	{ "sTitle": "Faction",  "mData": "faction", "bSearchable": false, "bVisible": false},
 	{ "sTitle": "Players",  "mData": "players", "bSearchable": true, "bVisible": false}
   ]
