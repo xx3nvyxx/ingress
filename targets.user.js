@@ -369,6 +369,14 @@ function getScores() {
     ++scores[portal.faction][level];
   }
 
+  var alertText = "Portal counts:\n\n";
+  for (var lvl=0; lvl<=8; lvl++) {
+    alertText += (scores['RESISTANCE'][lvl] || 0) + "\t" + (scores['ALIENS'][lvl] || 0) + "\t";
+  }
+  alertText += (new Date()).toLocaleString();
+  alert(alertText);
+
+  /* Old, leaving here for now...
   alert("Portal counts:\nResistance L6,L7,L8\nEnlightened L6,L7,L8\n\n" + 
         (scores['RESISTANCE'][6] || 0) + "\t" + 
         (scores['RESISTANCE'][7] || 0) + "\t" + 
@@ -376,6 +384,7 @@ function getScores() {
         (scores['ALIENS'][6] || 0) + "\t" + 
         (scores['ALIENS'][7] || 0) + "\t" + 
         (scores['ALIENS'][8] || 0) + "\t" + (new Date()).toLocaleString());
+  */
 }
 
 function gatherCoordinates() {
@@ -484,7 +493,10 @@ window.S = function(a, b, c, d, e, f) {
 */
 
 /*
+<<<<<<< HEAD
 Old function S, retired on 2013-03-19 - MD5 was a835fdcca8f81b01e745f3bf905107b7
+=======
+>>>>>>> S = Zc now
 window.S = function(a, b, c, d, e, f) {
   c.method = b;
   var g = u(a.Dc, a, b, e), h = u(a.Yc, a, b, d), i = u(a.ad, a);
