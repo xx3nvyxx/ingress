@@ -51,10 +51,10 @@ m(c,d,g,i,b[f+(3*a+5)%16],4,h[a]),i=m(i,c,d,g,b[f+(3*a+8)%16],11,h[a+1]),g=m(g,i
 24)&16711935|(a<<24|a>>>8)&4278255360;b.sigBytes=4*(f.length+1);this._process();b=this._hash.words;for(f=0;4>f;f++)a=b[f],b[f]=(a<<8|a>>>24)&16711935|(a<<24|a>>>8)&4278255360}});j.MD5=k._createHelper(p);j.HmacMD5=k._createHmacHelper(p)})(Math);
 //END CryptoJS
 
-//005248a11dea1df42d55141aa5907f55 is the MD5 of the current version of function Zc.
+//86cbd04199d932346d107e6afb6dd562 is the MD5 of the current version of function Zc.
 //Since I just want to add a single line to the function, I have to ensure nothing has changed from the version I know.
 var md5 = CryptoJS.MD5(String(Zc.prototype.constructor))
-if (md5 != "005248a11dea1df42d55141aa5907f55")
+if (md5 != "86cbd04199d932346d107e6afb6dd562")
 {
   alert("NianticOps changed something, please get a new version\n\nCurrent version md5 = " + md5);
   return;
@@ -493,10 +493,7 @@ window.S = function(a, b, c, d, e, f) {
 */
 
 /*
-<<<<<<< HEAD
 Old function S, retired on 2013-03-19 - MD5 was a835fdcca8f81b01e745f3bf905107b7
-=======
->>>>>>> S = Zc now
 window.S = function(a, b, c, d, e, f) {
   c.method = b;
   var g = u(a.Dc, a, b, e), h = u(a.Yc, a, b, d), i = u(a.ad, a);
@@ -516,11 +513,32 @@ window.S = function(a, b, c, d, e, f) {
 }
 */
 
+/*
+Old function Zc, retired on 2013-03-28 - MD5 was 005248a11dea1df42d55141aa5907f55
 window.Zc = function(a, b, c, d, e, f) {
   c.method = b;
   var g = t(a.Gc, a, b, e), h = t(a.cd, a, b, d), j = t(a.fd, a);
   _gaq.push(["_trackEvent", "RPC", b]);
   c = $.ajax({type:"POST", url:"/rpc/" + b, dataType:"json", contentType:"application/json; charset=utf-8", data:JSON.stringify(c), zd:function() {
+    g()
+  }, success:function(a) {
+    CollectPortalInfo(a)
+    h(a)
+  }, error:function(a, c) {
+    _gaq.push(["_trackEvent", "RPC_error", b]);
+    f && f({error:c || "unknown", respStatus:a.status})
+  }, complete:function(a) {
+    j(b, a)
+  }});
+  Yc(a, b).push(c)
+}
+*/
+
+window.Zc = function Zc(a, b, c, d, e, f) {
+  c.method = b;
+  var g = t(a.Gc, a, b, e), h = t(a.dd, a, b, d), j = t(a.gd, a);
+  _gaq.push(["_trackEvent", "RPC", b]);
+  c = $.ajax({type:"POST", url:"/rpc/" + b, dataType:"json", contentType:"application/json; charset=utf-8", data:JSON.stringify(c), Ad:function() {
     g()
   }, success:function(a) {
     CollectPortalInfo(a)
