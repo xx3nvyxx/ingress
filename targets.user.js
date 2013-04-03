@@ -347,12 +347,13 @@ function getScores() {
     ++scores[portal.faction][level];
   }
 
-  var alertText = "Portal counts:\n\n";
+  var alertText = "";
   for (var lvl=0; lvl<=8; lvl++) {
     alertText += (scores['RESISTANCE'][lvl] || 0) + "\t" + (scores['ALIENS'][lvl] || 0) + "\t";
   }
   alertText += (new Date()).toLocaleString();
-  alert(alertText);
+  document.querySelector("#graphCoords").innerHTML = alertText;
+  document.querySelector("#graphCoords").select();
 
   /* Old, leaving here for now...
   alert("Portal counts:\nResistance L6,L7,L8\nEnlightened L6,L7,L8\n\n" + 
@@ -417,11 +418,11 @@ $("#footer").after(' \
   <table style="border: 2px solid red; display:inline-block;"><tr><td><span id="refresh" style="cursor: pointer">Refresh Targets</span></td></tr></table> \
   <table style="border: 2px solid gray; display:inline-block;"><tr><td><span id="export" style="cursor: pointer">Export Player List</span></td></tr></table> \
   <table style="border: 2px solid gray; display:inline-block;"><tr><td><input type="checkbox" name="FilterPlayers" value="res" checked="checked" id=p_res><label for=p_res>Filter Players without Resonators</label></td></tr></table><br/> \
-  <table style="border: 2px solid gray; display:inline-block; margin-left:20px;"><tr><td><span id="get_score" style="cursor: pointer">Get Portal Counts</span></td></tr></table><br/> \
   <table id="targetTable"></table><br/> \
   <table id="playerTable"></table> \
   <textarea id="graphCoords"></textarea> \
-  <table style="border: 2px solid gray; display:inline-block;"><tr><td><span id="grab_coords" style="cursor: pointer">Grab Coordinates</span></td></tr></table><br/> \
+  <table style="border: 2px solid gray; display:inline-block;"><tr><td><span id="grab_coords" style="cursor: pointer">Grab Coordinates</span></td></tr></table> \
+  <table style="border: 2px solid gray; display:inline-block;"><tr><td><span id="get_score" style="cursor: pointer">Get Portal Counts</span></td></tr></table><br/> \
   <span style="font-size:smaller">For pasting in here: <a href="http://www.darrinward.com/lat-long/">http://www.darrinward.com/lat-long/</a></span> \
 </div> \
 ')
