@@ -366,6 +366,72 @@ function getScores() {
   */
 }
 
+function getJoshReport() {
+  var L8player_creates_L7portal = [];
+  var L7player_creates_L7portal = [];
+
+  for (var guid in portals) {
+    var portal = portals[guid];
+
+    // If anything's not defined, skip
+    if (!portal ||
+        !portal.faction ||
+        !portal.level ||
+        !portal.address) continue;
+
+    // This rounds down... seems like magic
+    var level = portal.level | 0;
+
+    var sortedResonatorString = String(portal.sortedResonators);
+
+    if (portal.faction == 'RESISTANCE') {
+      // L8 player creates L7 portal
+      if (((sortedResonatorString.indexOf("8877") == 0) ||   // 88877666
+           (sortedResonatorString.indexOf("8777") == 0) ||   // 88777766
+           (sortedResonatorString.indexOf("77777") == 0)) && // 87777776
+          (portal.level < 7)) {
+        L8player_creates_L7portal.push(portal);
+      }
+
+      // L7 player creates L7 portal
+      if (((sortedResonatorString.indexOf("8887") == 0) ||     // 88877666
+           (sortedResonatorString.indexOf("88777") == 0) ||    // 88777766
+           (sortedResonatorString.indexOf("877777") == 0) ||   // 87777776
+           (sortedResonatorString.indexOf("7777777") == 0)) && // 77777777
+          (portal.level < 7)) {
+        L7player_creates_L7portal.push(portal);
+      }
+    }
+  }
+
+  var reportText = "——————————————\n";
+  reportText += "*Portals a single L7 or L8 can push to L7*\n";
+  reportText += "——————————————\n\n";
+  var latLngs = "";
+  for (var p in L7player_creates_L7portal) {
+    var portal = L7player_creates_L7portal[p];
+    reportText += "*" + portal.title + "* (" + portal.address + ")\n";
+    reportText += "http://www.ingress.com/intel?latE6=" + portal.latE6 +
+                  "&lngE6=" + portal.lngE6 + "&z=17\n\n";
+    latLngs += portal.coords.replace(/\s/g, '') + "\n";
+  }
+  reportText += "\n\n" + latLngs;
+  latLngs = "";
+  reportText += "\n\n\n\n\n\n——————————————\n";
+  reportText += "*Portals a single L8 can push to L7*\n";
+  reportText += "——————————————\n\n";
+  for (var p in L8player_creates_L7portal) {
+    var portal = L8player_creates_L7portal[p];
+    reportText += "*" + portal.title + "* (" + portal.address + ")\n";
+    reportText += "http://www.ingress.com/intel?latE6=" + portal.latE6 +
+                  "&lngE6=" + portal.lngE6 + "&z=17\n\n";
+    latLngs += portal.coords.replace(/\s/g, '') + "\n";
+  }
+  reportText += "\n\n" + latLngs;
+  document.querySelector("#graphCoords").innerHTML = reportText;
+  document.querySelector("#graphCoords").select();
+}
+
 function gatherCoordinates() {
   var filteredData = portalDataTable._('tr', {"filter": "applied"});
   var latLongs = "";
@@ -423,12 +489,14 @@ $("#footer").after(' \
   <textarea id="graphCoords"></textarea> \
   <table style="border: 2px solid gray; display:inline-block;"><tr><td><span id="grab_coords" style="cursor: pointer">Grab Coordinates</span></td></tr></table> \
   <table style="border: 2px solid gray; display:inline-block;"><tr><td><span id="get_score" style="cursor: pointer">Get Portal Counts</span></td></tr></table><br/> \
+  <table style="border: 2px solid gray; display:inline-block;"><tr><td><span id="josh_report" style="cursor: pointer">Josh&apos;s report</span></td></tr></table><br/> \
   <span style="font-size:smaller">For pasting in here: <a href="http://www.darrinward.com/lat-long/">http://www.darrinward.com/lat-long/</a></span> \
 </div> \
 ')
 $("#refresh").click(makeTargetsTable)
 $("#export").click(makePlayersTable)
 $("#get_score").click(getScores)
+$("#josh_report").click(getJoshReport)
 $("#grab_coords").click(gatherCoordinates)
 
 
